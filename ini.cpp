@@ -2,10 +2,7 @@
 #include <sstream>
 #include <stdexcept>
 
-// TODO remove 
-#include <iostream>
 #include "ini.h"
-
 
 
 static void 
