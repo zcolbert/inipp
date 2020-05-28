@@ -24,6 +24,9 @@ namespace ini
     class ConfigParser
     {
         public:
+            bool case_sensitive = false;
+            std::string default_section = "default";
+
             explicit ConfigParser();
 
             std::string
@@ -58,8 +61,10 @@ namespace ini
                 const std::string& key, 
                 const std::string& value);
 
+            void
+            setCaseSensitive(bool sensitive);
+
         private:
-            std::string default_section = "default";
             std::unordered_map<std::string, ConfigSection> section_map;
             std::unordered_set<std::string> true_values;
             std::unordered_set<std::string> false_values;

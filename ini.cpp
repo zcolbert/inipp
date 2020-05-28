@@ -35,6 +35,7 @@ upperCase(const std::string& orig)
 }
 
 ini::ConfigParser::ConfigParser() :
+    case_sensitive(false),
     default_section("default"),
     section_map(),
     true_values({"true", "yes", "1", "on"}),
@@ -45,8 +46,8 @@ std::string
 ini::ConfigParser::get(const std::string& section,
                        const std::string& key) const
 {
-    ConfigSection s = getSection(section);
-    auto value = s.find(key);
+    ConfigSection s = getSection(lowerCase(section));
+    auto value = s.find(lowerCase(key));
     if (value == s.end())
     {
         std::string msg("Section \"" + section + "\" does not contain key \"" + key + '"');
@@ -140,6 +141,12 @@ ini::ConfigParser::read(std::ifstream& fs)
         {
             currentValue = chars.str();
             resetStringStream(chars);
+            if (!case_sensitive)
+            {
+                currentSection = lowerCase(currentSection);
+                currentKey = lowerCase(currentKey);
+                currentValue = lowerCase(currentValue);
+            }
             set(currentSection, currentKey, currentValue);
         }
         state = SEEKING_KEY;
