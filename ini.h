@@ -2,6 +2,7 @@
 
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 
@@ -23,11 +24,19 @@ namespace ini
     class ConfigParser
     {
         public:
-            explicit ConfigParser() = default;
+            explicit ConfigParser();
 
             std::string
             get(const std::string& section,
                 const std::string& key) const;
+
+            bool 
+            getBool(const std::string& section,
+                    const std::string& key) const;
+
+            int
+            getInt(const std::string& section,
+                   const std::string& key) const;
 
             bool
             hasSection(const std::string& name) const;
@@ -47,7 +56,9 @@ namespace ini
                 const std::string& value);
 
         private:
-            std::unordered_map<std::string, ConfigSection> sections;
             std::string default_section = "default";
+            std::unordered_map<std::string, ConfigSection> section_map;
+            std::unordered_set<std::string> true_values;
+            std::unordered_set<std::string> false_values;
     };
 }

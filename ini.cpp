@@ -1,7 +1,7 @@
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
-
+#include <cctype>     // std::tolower(), std::toupper()
 #include "ini.h"
 
 
@@ -11,6 +11,36 @@ resetStringStream(std::ostringstream& oss)
     oss.str("");  // reset string contents
     oss.clear();  // clear warning flags
 }
+
+static std::string
+lowerCase(const std::string& orig)
+{
+    std::ostringstream oss;
+    for (auto c: orig)
+    {
+        oss << static_cast<char>(tolower(c));
+    }
+    return oss.str();
+}
+
+static std::string
+upperCase(const std::string& orig)
+{
+    std::ostringstream oss;
+    for (auto c: orig)
+    {
+        oss << static_cast<char>(toupper(c));
+    }
+    return oss.str();
+}
+
+ini::ConfigParser::ConfigParser() :
+    default_section("default"),
+    section_map(),
+    true_values({"true", "yes", "1", "on"}),
+    false_values({"false", "no", "0", "off"})
+{}
+
 
 std::string
 ini::ConfigParser::get(const std::string& section,
@@ -26,18 +56,48 @@ ini::ConfigParser::get(const std::string& section,
     return value->second;
 }
 
+bool 
+ini::ConfigParser::getBool(const std::string& section,
+                           const std::string& key) const
+{
+    std::string value = lowerCase(get(section, key));
+    if (true_values.find(value) != true_values.end())
+    {
+        return true;
+    }
+    else if (false_values.find(value) != false_values.end())
+    {
+        return false;
+    }
+    else
+    {
+        std::string msg = "Error reading [" + section + "]/" + "\"" + key\
+                           + "\": value \"" + value + "\" cannot be "\
+                           "interpreted as boolean.";
+        throw std::invalid_argument(msg);
+    }
+}
+
+int
+ini::ConfigParser::getInt(const std::string& section,
+       const std::string& key) const
+{
+    std::string value = get(section, key);
+    return stoi(value);
+}
+
 bool
 ini::ConfigParser::hasSection(const std::string& name) const
 {
-    auto s = sections.find(name);
-    return s != sections.end();
+    auto s = section_map.find(name);
+    return s != section_map.end();
 }
 
 ini::ConfigSection
 ini::ConfigParser::getSection(const std::string& name) const
 {
-    auto s = sections.find(name);
-    if (s == sections.end())
+    auto s = section_map.find(name);
+    if (s == section_map.end())
     {
         std::string msg("Section \"" + name + "\" does not exist.");
         throw std::invalid_argument(msg);
@@ -49,7 +109,7 @@ void
 ini::ConfigParser::addSection(const std::string& name)
 {
     ConfigSection section;
-    sections.try_emplace(name, section);
+    section_map.try_emplace(name, section);
 }
 
 void
@@ -145,6 +205,6 @@ ini::ConfigParser::set(const std::string& section,
     {
         addSection(section);
     }
-    sections[section].insert_or_assign(key, value);
+    section_map[section].insert_or_assign(key, value);
 }
 
