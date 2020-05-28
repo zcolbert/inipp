@@ -18,7 +18,7 @@ lowerCase(const std::string& orig)
     std::ostringstream oss;
     for (auto c: orig)
     {
-        oss << static_cast<char>(tolower(c));
+        oss << static_cast<char>(tolower(static_cast<unsigned char>(c)));
     }
     return oss.str();
 }
@@ -29,7 +29,7 @@ upperCase(const std::string& orig)
     std::ostringstream oss;
     for (auto c: orig)
     {
-        oss << static_cast<char>(toupper(c));
+        oss << static_cast<char>(toupper(static_cast<unsigned char>(c)));
     }
     return oss.str();
 }
