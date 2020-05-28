@@ -61,9 +61,6 @@ namespace ini
                 const std::string& key, 
                 const std::string& value);
 
-            void
-            setCaseSensitive(bool sensitive);
-
         private:
             std::unordered_map<std::string, ConfigSection> section_map;
             std::unordered_set<std::string> true_values;
