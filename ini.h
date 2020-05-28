@@ -51,6 +51,9 @@ namespace ini
             read(const std::string& filename);
 
             void
+            read(std::ifstream& fs);
+
+            void
             set(const std::string& section, 
                 const std::string& key, 
                 const std::string& value);

@@ -41,7 +41,6 @@ ini::ConfigParser::ConfigParser() :
     false_values({"false", "no", "0", "off"})
 {}
 
-
 std::string
 ini::ConfigParser::get(const std::string& section,
                        const std::string& key) const
@@ -122,7 +121,12 @@ ini::ConfigParser::read(const std::string& filename)
         std::string msg("Failed to read file: " + filename);
         throw std::runtime_error(msg);
     }
+    read(fs);
+}
 
+void
+ini::ConfigParser::read(std::ifstream& fs)
+{
     ini::ParseState state = SEEKING_KEY;
     std::string currentSection = default_section;
     std::string currentKey;
