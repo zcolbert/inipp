@@ -24,8 +24,7 @@ namespace ini
     class ConfigParser
     {
         public:
-            bool case_sensitive = false;
-            std::string default_section = "default";
+            std::string default_section;
 
             explicit ConfigParser();
 

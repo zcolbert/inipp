@@ -35,7 +35,6 @@ upperCase(const std::string& orig)
 }
 
 ini::ConfigParser::ConfigParser() :
-    case_sensitive(false),
     default_section("default"),
     section_map(),
     true_values({"true", "yes", "1", "on"}),
@@ -141,19 +140,24 @@ ini::ConfigParser::read(std::ifstream& fs)
         {
             currentValue = chars.str();
             resetStringStream(chars);
-            if (!case_sensitive)
-            {
-                currentSection = lowerCase(currentSection);
-                currentKey = lowerCase(currentKey);
-                currentValue = lowerCase(currentValue);
-            }
-            set(currentSection, currentKey, currentValue);
+
+            set(lowerCase(currentSection), 
+                lowerCase(currentKey), 
+                currentValue);
         }
         state = SEEKING_KEY;
 
         for (auto c: line)
         {
-            if (state != READING_COMMENT)
+            if (state == READING_COMMENT)
+            {
+                break;
+            }
+            else if (state == READING_VALUE)
+            {
+                chars << c;
+            }
+            else 
             {
                 switch(c) 
                 {
@@ -163,10 +167,6 @@ ini::ConfigParser::read(std::ifstream& fs)
 
                     case ' ':
                     case '\t':
-                        if (state == READING_VALUE)
-                        {
-                            chars << c;
-                        }
                         break;
 
                     case '[':
@@ -174,6 +174,12 @@ ini::ConfigParser::read(std::ifstream& fs)
                         break;
 
                     case ']':
+                        if (state != READING_SECTION)
+                        {
+                            std::string msg("Parse error: Encountered ']'"\
+                                            " but was not reading section.");
+                            throw std::runtime_error(msg);
+                        }
                         currentSection = chars.str();
                         resetStringStream(chars);
                         addSection(currentSection);
