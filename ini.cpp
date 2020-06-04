@@ -135,16 +135,7 @@ ini::ConfigParser::read(std::ifstream& fs)
     std::string line;
     std::ostringstream chars;
     while (std::getline(fs, line))
-    {
-        if (state == READING_VALUE)
-        {
-            currentValue = chars.str();
-            resetStringStream(chars);
-
-            set(lowerCase(currentSection), 
-                lowerCase(currentKey), 
-                currentValue);
-        }
+	{
         state = SEEKING_KEY;
 
         for (auto c: line)
@@ -183,7 +174,6 @@ ini::ConfigParser::read(std::ifstream& fs)
                         currentSection = chars.str();
                         resetStringStream(chars);
                         addSection(currentSection);
-                        state = READING_KEY;
                         break;
 
                     case '=':
@@ -210,7 +200,16 @@ ini::ConfigParser::read(std::ifstream& fs)
                 }
             }
         }
-    }
+        if (state == READING_VALUE)
+        {
+            currentValue = chars.str();
+            resetStringStream(chars);
+
+            set(lowerCase(currentSection), 
+                lowerCase(currentKey), 
+                currentValue);
+        }
+	} 
 }
 
 void
