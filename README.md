@@ -14,7 +14,8 @@ Example:
     name = inipp
     purpose = A basic config parser
     
-    [DETAILS]
-    license: GPL3
-    attribution: True
+    # single line comments begin with '#'
+    [SECTION]
+    key: value
+    string_key: Strings are not enclosed in quotes
     
