@@ -1,7 +1,8 @@
-#include <fstream>
-#include <sstream>
-#include <stdexcept>
 #include <cctype>     // std::tolower(), std::toupper()
+#include <fstream>
+#include <stdexcept>
+#include <sstream>
+
 #include "ini.h"
 
 
@@ -16,8 +17,7 @@ static std::string
 lowerCase(const std::string& orig)
 {
     std::ostringstream oss;
-    for (auto c: orig)
-    {
+    for (auto c: orig) {
         oss << static_cast<char>(tolower(static_cast<unsigned char>(c)));
     }
     return oss.str();
@@ -27,8 +27,7 @@ static std::string
 upperCase(const std::string& orig)
 {
     std::ostringstream oss;
-    for (auto c: orig)
-    {
+    for (auto c: orig) {
         oss << static_cast<char>(toupper(static_cast<unsigned char>(c)));
     }
     return oss.str();
@@ -40,6 +39,25 @@ ini::ConfigParser::ConfigParser() :
     true_values({"true", "yes", "1", "on"}),
     false_values({"false", "no", "0", "off"})
 {}
+
+void
+ini::ConfigParser::defineBoolean(const std::string& key, 
+                                 bool value)
+{
+    if (value) {
+        true_values.insert(key);
+    }
+    else {
+        false_values.insert(key);
+    }
+}
+
+void
+ini::ConfigParser::undefineBoolean(const std::string& key)
+{
+    true_values.erase(key);
+    false_values.erase(key);
+}
 
 std::string
 ini::ConfigParser::get(const std::string& section,

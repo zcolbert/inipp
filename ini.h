@@ -28,6 +28,13 @@ namespace ini
 
             explicit ConfigParser();
 
+            void 
+            defineBoolean(const std::string& key, 
+                          bool value);
+
+            void 
+            undefineBoolean(const std::string &key);
+
             std::string
             get(const std::string& section,
                 const std::string& key) const;
