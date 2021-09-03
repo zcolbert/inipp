@@ -6,8 +6,15 @@ Sections are designated in the format [SECTION]
 Key-value pairs are located within each section header. 
 Values may be delimited by an equal sign or a colon.
 
+The following boolean values are supported by default: (yes/no), (true/false), (on/off), (1/0)
+
 Example:
 
-[GENERAL]
-name = inipp
-purpose: A basic config parser
+    [GENERAL]
+    name = inipp
+    purpose = A basic config parser
+    
+    [DETAILS]
+    license: GPL3
+    attribution: True
+    
