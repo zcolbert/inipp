@@ -7,12 +7,14 @@
 
 
 static void resetStringStream(std::ostringstream& oss)
+/*  Reset a string stream and clear it to its initial state */
 {
     oss.str("");  // reset string contents
     oss.clear();  // clear warning flags
 }
 
 static std::string lowerCase(const std::string& orig)
+/*  Return a lowercase copy of the original string */
 {
     std::ostringstream oss;
     for (auto c: orig) {
@@ -22,6 +24,7 @@ static std::string lowerCase(const std::string& orig)
 }
 
 static std::string upperCase(const std::string& orig)
+/*  Return an uppercase copy of the original string */
 {
     std::ostringstream oss;
     for (auto c: orig) {
@@ -38,6 +41,7 @@ ini::ConfigParser::ConfigParser() :
 {}
 
 void ini::ConfigParser::defineBoolean(const std::string& key, bool value)
+/*  Define a new key that evaluatees to a boolean value */
 {
     if (value) {
         true_values.insert(key);
@@ -48,12 +52,14 @@ void ini::ConfigParser::defineBoolean(const std::string& key, bool value)
 }
 
 void ini::ConfigParser::undefineBoolean(const std::string& key)
+/*  Undefine a key that evaluatees to a boolean value */
 {
     true_values.erase(key);
     false_values.erase(key);
 }
 
 std::string ini::ConfigParser::get(const std::string& section, const std::string& key) const
+/*  Retrieve the value of a key that exists in a given section */
 {
     ConfigSection s = getSection(lowerCase(section));
     auto value = s.find(lowerCase(key));
@@ -66,18 +72,21 @@ std::string ini::ConfigParser::get(const std::string& section, const std::string
 }
 
 bool ini::ConfigParser::getBool(const std::string& section, const std::string& key) const
+/* 
+    Retrieve the value of a key that exists in a given section, and attempt to 
+    interpret the value as a boolean. If the key has not been defined as a boolean,
+    a std::invalid_argument exception is thrown.
+*/
 {
     std::string value = lowerCase(get(section, key));
-    if (true_values.find(value) != true_values.end())
-    {
+
+    if (true_values.find(value) != true_values.end()) {
         return true;
     }
-    else if (false_values.find(value) != false_values.end())
-    {
+    else if (false_values.find(value) != false_values.end()) {
         return false;
     }
-    else
-    {
+    else {
         std::string msg = "Error reading [" + section + "]/" + "\"" + key\
                            + "\": value \"" + value + "\" cannot be "\
                            "interpreted as boolean.";
@@ -86,18 +95,24 @@ bool ini::ConfigParser::getBool(const std::string& section, const std::string& k
 }
 
 int ini::ConfigParser::getInt(const std::string& section, const std::string& key) const
+/*  Retrieve the value of a key from a given section, and attempt to interpret it as an int */
 {
     std::string value = get(section, key);
     return stoi(value);
 }
 
 bool ini::ConfigParser::hasSection(const std::string& name) const
+/*  Return true if the section exists in the config map */
 {
     auto s = section_map.find(name);
     return s != section_map.end();
 }
 
 ini::ConfigSection ini::ConfigParser::getSection(const std::string& name) const
+/* 
+    Return a ConfigSection containing the key value pairs of the specified section.
+    If the section does not exist, a std::invalid_argument exception is thrown.
+*/
 {
     auto s = section_map.find(name);
     if (s == section_map.end())
@@ -108,15 +123,18 @@ ini::ConfigSection ini::ConfigParser::getSection(const std::string& name) const
     return s->second;
 }
 
-void  ini::ConfigParser::addSection(const std::string& name)
+void ini::ConfigParser::addSection(const std::string& name)
+/*  Add a new section to the config, initially containing no key-value pairs. */
 {
     ConfigSection section;
     section_map.try_emplace(name, section);
 }
 
 void ini::ConfigParser::read(const std::string& filename)
+/*  Populate the config from a file structured in INI format */
 {
     std::ifstream fs;
+
     fs.open(filename);
     if (!fs.is_open())
     {
@@ -127,6 +145,7 @@ void ini::ConfigParser::read(const std::string& filename)
 }
 
 void ini::ConfigParser::read(std::ifstream& fs)
+/*  Populate the config from a file structured in INI format */
 {
     ini::ParseState state = SEEKING_KEY;
     std::string currentSection = default_section;
@@ -141,16 +160,14 @@ void ini::ConfigParser::read(std::ifstream& fs)
 
         for (auto c: line)
         {
-            if (state == READING_COMMENT)
-            {
+            if (state == READING_COMMENT) {
                 break;
             }
-            else if (state == READING_VALUE)
-            {
+            else if (state == READING_VALUE) {
                 chars << c;
             }
-            else 
-            {
+            else  {
+                // Update the parsing state based on the current character
                 switch(c) 
                 {
                     case '#':
@@ -159,19 +176,23 @@ void ini::ConfigParser::read(std::ifstream& fs)
 
                     case ' ':
                     case '\t':
+                        // Ignore whitespace
                         break;
 
                     case '[':
+                        // Indicates beginning of a new section
                         state = READING_SECTION;
                         break;
 
                     case ']':
+                        // Indicates end of a section
                         if (state != READING_SECTION)
                         {
                             std::string msg("Parse error: Encountered ']'"\
                                             " but was not reading section.");
                             throw std::runtime_error(msg);
                         }
+                        // Add the new section to the config map
                         currentSection = chars.str();
                         resetStringStream(chars);
                         addSection(currentSection);
@@ -179,6 +200,8 @@ void ini::ConfigParser::read(std::ifstream& fs)
 
                     case '=':
                     case ':':
+                        // Indicates start of value string if currently reading key
+                        // Ignored if reading a value (delimiter may exist in an arbitrary string value)
                         if (state == READING_KEY)
                         {
                             currentKey = chars.str();
@@ -188,19 +211,19 @@ void ini::ConfigParser::read(std::ifstream& fs)
                         break;
 
                     default:
+                        // Add the current character to the character buffer
                         chars << c;
-                        if (state == SEEKING_KEY)
-                        {
+                        if (state == SEEKING_KEY) {
                             state = READING_KEY;
                         }
-                        else if (state == SEEKING_VALUE)
-                        {
+                        else if (state == SEEKING_VALUE) {
                             state = READING_VALUE;
                         }
                         break;
                 }
             }
         }
+        // Add the contents of the character buffer to the current section
         if (state == READING_VALUE)
         {
             currentValue = chars.str();
@@ -214,9 +237,12 @@ void ini::ConfigParser::read(std::ifstream& fs)
 }
 
 void ini::ConfigParser::set(const std::string& section, const std::string& key, const std::string& value)
+/*
+    Set the value of a given key in the specified section. The section is created if it doesn't exist. 
+    If the key exists its value will be replaced. Otherwise, the new key is added with the initial value.
+*/
 {
-    if (!hasSection(section))
-    {
+    if (!hasSection(section)) {
         addSection(section);
     }
     section_map[section].insert_or_assign(key, value);
