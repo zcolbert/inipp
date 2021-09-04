@@ -161,6 +161,8 @@ void ini::ConfigParser::read(std::ifstream& fs)
         for (auto c: line)
         {
             if (state == READING_COMMENT) {
+                // Not necessary to read the remaining characters
+                // Skip directly to the next line
                 break;
             }
             else if (state == READING_VALUE) {
