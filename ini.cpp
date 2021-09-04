@@ -1,3 +1,14 @@
+/******************************************************************************
+* Name:     ini.cpp
+* Purpose:  A basic INI configuration file parser
+* Author:   Zachary Colbert <zcolbert1993@gmail.com>
+*
+* Description:
+*   Contains implementation for the ConfigParser class which reads
+*   sections containing key-value pairs from a file in INI format. 
+******************************************************************************/
+
+
 #include <cctype>     // std::tolower(), std::toupper()
 #include <fstream>
 #include <stdexcept>
@@ -34,6 +45,7 @@ static std::string upperCase(const std::string& orig)
 }
 
 ini::ConfigParser::ConfigParser() :
+// Default constructor for ConfigParser class
     default_section("default"),
     section_map(),
     true_values({"true", "yes", "1", "on"}),

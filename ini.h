@@ -1,3 +1,15 @@
+/******************************************************************************
+* Name:     ini.h
+* Purpose:  A basic INI configuration file parser
+* Author:   Zachary Colbert
+*
+* Description:
+*   Contains declarations for the ConfigParser class.
+*   ConfigParser reads a file in INI format, and stores the key-value
+*   pairs organized into sections.
+*******************************************************************************/
+
+
 #pragma once
 
 #include <string>
