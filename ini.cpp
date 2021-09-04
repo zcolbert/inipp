@@ -6,15 +6,13 @@
 #include "ini.h"
 
 
-static void 
-resetStringStream(std::ostringstream& oss)
+static void resetStringStream(std::ostringstream& oss)
 {
     oss.str("");  // reset string contents
     oss.clear();  // clear warning flags
 }
 
-static std::string
-lowerCase(const std::string& orig)
+static std::string lowerCase(const std::string& orig)
 {
     std::ostringstream oss;
     for (auto c: orig) {
@@ -23,8 +21,7 @@ lowerCase(const std::string& orig)
     return oss.str();
 }
 
-static std::string
-upperCase(const std::string& orig)
+static std::string upperCase(const std::string& orig)
 {
     std::ostringstream oss;
     for (auto c: orig) {
@@ -40,9 +37,7 @@ ini::ConfigParser::ConfigParser() :
     false_values({"false", "no", "0", "off"})
 {}
 
-void
-ini::ConfigParser::defineBoolean(const std::string& key, 
-                                 bool value)
+void ini::ConfigParser::defineBoolean(const std::string& key, bool value)
 {
     if (value) {
         true_values.insert(key);
@@ -52,16 +47,13 @@ ini::ConfigParser::defineBoolean(const std::string& key,
     }
 }
 
-void
-ini::ConfigParser::undefineBoolean(const std::string& key)
+void ini::ConfigParser::undefineBoolean(const std::string& key)
 {
     true_values.erase(key);
     false_values.erase(key);
 }
 
-std::string
-ini::ConfigParser::get(const std::string& section,
-                       const std::string& key) const
+std::string ini::ConfigParser::get(const std::string& section, const std::string& key) const
 {
     ConfigSection s = getSection(lowerCase(section));
     auto value = s.find(lowerCase(key));
@@ -73,9 +65,7 @@ ini::ConfigParser::get(const std::string& section,
     return value->second;
 }
 
-bool 
-ini::ConfigParser::getBool(const std::string& section,
-                           const std::string& key) const
+bool ini::ConfigParser::getBool(const std::string& section, const std::string& key) const
 {
     std::string value = lowerCase(get(section, key));
     if (true_values.find(value) != true_values.end())
@@ -95,23 +85,19 @@ ini::ConfigParser::getBool(const std::string& section,
     }
 }
 
-int
-ini::ConfigParser::getInt(const std::string& section,
-       const std::string& key) const
+int ini::ConfigParser::getInt(const std::string& section, const std::string& key) const
 {
     std::string value = get(section, key);
     return stoi(value);
 }
 
-bool
-ini::ConfigParser::hasSection(const std::string& name) const
+bool ini::ConfigParser::hasSection(const std::string& name) const
 {
     auto s = section_map.find(name);
     return s != section_map.end();
 }
 
-ini::ConfigSection
-ini::ConfigParser::getSection(const std::string& name) const
+ini::ConfigSection ini::ConfigParser::getSection(const std::string& name) const
 {
     auto s = section_map.find(name);
     if (s == section_map.end())
@@ -122,15 +108,13 @@ ini::ConfigParser::getSection(const std::string& name) const
     return s->second;
 }
 
-void 
-ini::ConfigParser::addSection(const std::string& name)
+void  ini::ConfigParser::addSection(const std::string& name)
 {
     ConfigSection section;
     section_map.try_emplace(name, section);
 }
 
-void
-ini::ConfigParser::read(const std::string& filename)
+void ini::ConfigParser::read(const std::string& filename)
 {
     std::ifstream fs;
     fs.open(filename);
@@ -142,8 +126,7 @@ ini::ConfigParser::read(const std::string& filename)
     read(fs);
 }
 
-void
-ini::ConfigParser::read(std::ifstream& fs)
+void ini::ConfigParser::read(std::ifstream& fs)
 {
     ini::ParseState state = SEEKING_KEY;
     std::string currentSection = default_section;
@@ -230,10 +213,7 @@ ini::ConfigParser::read(std::ifstream& fs)
 	} 
 }
 
-void
-ini::ConfigParser::set(const std::string& section, 
-                       const std::string& key, 
-                       const std::string& value)
+void ini::ConfigParser::set(const std::string& section, const std::string& key, const std::string& value)
 {
     if (!hasSection(section))
     {

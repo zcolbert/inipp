@@ -28,44 +28,21 @@ namespace ini
 
             explicit ConfigParser();
 
-            void 
-            defineBoolean(const std::string& key, 
-                          bool value);
+            void defineBoolean(const std::string& key, bool value);
+            void undefineBoolean(const std::string &key);
 
-            void 
-            undefineBoolean(const std::string &key);
+            std::string get(const std::string& section, const std::string& key) const;
+            bool getBool(const std::string& section, const std::string& key) const;
+            int getInt(const std::string& section, const std::string& key) const;
 
-            std::string
-            get(const std::string& section,
-                const std::string& key) const;
+            bool hasSection(const std::string& name) const;
+            ConfigSection getSection(const std::string& name) const;
+            void addSection(const std::string& name);
 
-            bool 
-            getBool(const std::string& section,
-                    const std::string& key) const;
+            void read(const std::string& filename);
+            void read(std::ifstream& fs);
 
-            int
-            getInt(const std::string& section,
-                   const std::string& key) const;
-
-            bool
-            hasSection(const std::string& name) const;
-
-            ConfigSection
-            getSection(const std::string& name) const;
-
-            void 
-            addSection(const std::string& name);
-
-            void
-            read(const std::string& filename);
-
-            void
-            read(std::ifstream& fs);
-
-            void
-            set(const std::string& section, 
-                const std::string& key, 
-                const std::string& value);
+            void set(const std::string& section, const std::string& key, const std::string& value);
 
         private:
             std::unordered_map<std::string, ConfigSection> section_map;
